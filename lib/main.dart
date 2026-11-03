@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:go_router/go_router.dart';
@@ -14,10 +15,16 @@ import 'features/turbulence/turbulence_screen.dart';
 import 'features/calm/calm_me_screen.dart';
 import 'features/settings/settings_screen.dart';
 import 'features/flight/arrival_complete_screen.dart';
+import 'features/flight/next_flight_screen.dart';
+import 'features/premium/premium_screen.dart';
+import 'features/premium/premium_gate.dart';
+import 'features/premium/guided_session_catalog.dart';
+import 'features/premium/guided_session_screen.dart';
+import 'features/support/support_mode_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   final sharedPrefs = await SharedPreferences.getInstance();
 
   runApp(
@@ -30,76 +37,137 @@ Future<void> main() async {
   );
 }
 
-class SkyEaseApp extends ConsumerWidget {
-  const SkyEaseApp({Key? key}) : super(key: key);
+class SkyEaseApp extends ConsumerStatefulWidget {
+  const SkyEaseApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final settings = ref.watch(settingsProvider);
-    
-    // We start at the splash screen to allow a calm fade-in
-    final goRouter = GoRouter(
-      initialLocation: '/',
-      routes: [
-        GoRoute(
-          path: '/',
-          builder: (context, state) => const SplashScreen(),
-        ),
-        GoRoute(
-          path: '/onboarding',
-          builder: (context, state) => const OnboardingScreen(),
-        ),
-        GoRoute(
-          path: '/home',
-          builder: (context, state) => const HomeScreen(),
-        ),
-        GoRoute(
-          path: '/add_flight',
-          builder: (context, state) => const AddFlightScreen(),
-        ),
-        GoRoute(
-          path: '/flight_mode',
-          builder: (context, state) => const FlightModeScreen(),
-        ),
-        GoRoute(
-          path: '/turbulence',
-          pageBuilder: (context, state) => CustomTransitionPage(
-            child: const TurbulenceScreen(),
-            transitionsBuilder: (context, animation, secondaryAnimation, child) {
-              return FadeTransition(opacity: animation, child: child);
-            },
-          ),
-        ),
-        GoRoute(
-          path: '/calm',
-          pageBuilder: (context, state) => CustomTransitionPage(
-            child: const CalmMeScreen(),
-            transitionsBuilder: (context, animation, secondaryAnimation, child) {
-              return FadeTransition(opacity: animation, child: child);
-            },
-          ),
-        ),
-        GoRoute(
-          path: '/settings',
-          builder: (context, state) => const SettingsScreen(),
-        ),
-        GoRoute(
-          path: '/arrival',
-          pageBuilder: (context, state) => CustomTransitionPage(
-            child: const ArrivalCompleteScreen(),
-            transitionsBuilder: (context, animation, secondaryAnimation, child) {
-              return FadeTransition(opacity: animation, child: child);
-            },
-          ),
-        ),
-      ],
-    );
+  ConsumerState<SkyEaseApp> createState() => _SkyEaseAppState();
+}
 
+class _SkyEaseAppState extends ConsumerState<SkyEaseApp> {
+  late final GoRouter _router;
+
+  @override
+  void initState() {
+    super.initState();
+    _router = createAppRouter();
+    ref.read(analyticsProvider).trackAppOpen();
+  }
+
+  @override
+  void dispose() {
+    _router.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return MaterialApp.router(
       title: 'FlyCalm',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.theme,
-      routerConfig: goRouter,
+      routerConfig: _router,
+      builder: (context, child) => AnnotatedRegion<SystemUiOverlayStyle>(
+        value: AppTheme.systemUiOverlayStyle,
+        child: child!,
+      ),
     );
   }
+}
+
+GoRouter createAppRouter({String initialLocation = '/'}) {
+  return GoRouter(
+    initialLocation: initialLocation,
+    routes: [
+      GoRoute(
+        path: '/',
+        builder: (context, state) => const SplashScreen(),
+      ),
+      GoRoute(
+        path: '/onboarding',
+        builder: (context, state) => const OnboardingScreen(),
+      ),
+      GoRoute(
+        path: '/home',
+        builder: (context, state) => const HomeScreen(),
+      ),
+      GoRoute(
+        path: '/add_flight',
+        builder: (context, state) => const AddFlightScreen(),
+      ),
+      GoRoute(
+        path: '/flight_mode',
+        builder: (context, state) => const FlightModeScreen(),
+      ),
+      GoRoute(
+        path: '/turbulence',
+        pageBuilder: (context, state) => CustomTransitionPage(
+          child: const TurbulenceScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+        ),
+      ),
+      GoRoute(
+        path: '/calm',
+        pageBuilder: (context, state) => CustomTransitionPage(
+          child: const CalmMeScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+        ),
+      ),
+      GoRoute(
+        path: '/settings',
+        builder: (context, state) => const SettingsScreen(),
+      ),
+      GoRoute(
+        path: '/arrival',
+        pageBuilder: (context, state) => CustomTransitionPage(
+          child: const ArrivalCompleteScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+        ),
+      ),
+      GoRoute(
+          path: '/next_flight', builder: (_, __) => const NextFlightScreen()),
+      GoRoute(path: '/premium', builder: (_, __) => const PremiumScreen()),
+      GoRoute(
+          path: '/takeoff',
+          builder: (_, __) =>
+              const SupportModeScreen(mode: SupportMode.takeoff)),
+      GoRoute(
+          path: '/panic',
+          builder: (_, __) => const SupportModeScreen(mode: SupportMode.panic)),
+      GoRoute(
+          path: '/landing',
+          builder: (_, __) =>
+              const SupportModeScreen(mode: SupportMode.landing)),
+      GoRoute(
+        path: '/premium/guided-flight',
+        builder: (_, __) => const PremiumGate(
+          child: GuidedSessionScreen(
+            session: GuidedSessionCatalog.flightJourney,
+          ),
+        ),
+      ),
+      GoRoute(
+        path: '/premium/advanced-turbulence',
+        builder: (_, __) => const PremiumGate(
+          child: GuidedSessionScreen(
+            session: GuidedSessionCatalog.advancedTurbulence,
+          ),
+        ),
+      ),
+      GoRoute(
+        path: '/premium/structured-panic',
+        builder: (_, __) => const PremiumGate(
+          child: GuidedSessionScreen(
+            session: GuidedSessionCatalog.structuredPanic,
+          ),
+        ),
+      ),
+    ],
+  );
 }

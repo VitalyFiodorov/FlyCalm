@@ -6,13 +6,14 @@ import '../../core/theme/app_theme.dart';
 import '../../shared/widgets/shared_widgets.dart';
 
 class CalmMeScreen extends ConsumerStatefulWidget {
-  const CalmMeScreen({Key? key}) : super(key: key);
+  const CalmMeScreen({super.key});
 
   @override
   ConsumerState<CalmMeScreen> createState() => _CalmMeScreenState();
 }
 
-class _CalmMeScreenState extends ConsumerState<CalmMeScreen> with SingleTickerProviderStateMixin {
+class _CalmMeScreenState extends ConsumerState<CalmMeScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
   String _instructionText = "Breathe in…";
@@ -21,14 +22,15 @@ class _CalmMeScreenState extends ConsumerState<CalmMeScreen> with SingleTickerPr
   void initState() {
     super.initState();
     _controller = AnimationController(
-        vsync: this,
-        duration: const Duration(seconds: 10), // 4 in, 2 hold, 4 out rough cycle
+      vsync: this,
+      duration: const Duration(seconds: 10), // 4 in, 2 hold, 4 out rough cycle
     );
 
     _scaleAnimation = TweenSequence(
       <TweenSequenceItem<double>>[
         TweenSequenceItem<double>(
-          tween: Tween(begin: 0.5, end: 1.0).chain(CurveTween(curve: Curves.easeInOutSine)),
+          tween: Tween(begin: 0.5, end: 1.0)
+              .chain(CurveTween(curve: Curves.easeInOutSine)),
           weight: 40.0, // 4s inhale
         ),
         TweenSequenceItem<double>(
@@ -36,7 +38,8 @@ class _CalmMeScreenState extends ConsumerState<CalmMeScreen> with SingleTickerPr
           weight: 10.0, // 1s hold
         ),
         TweenSequenceItem<double>(
-          tween: Tween(begin: 1.0, end: 0.5).chain(CurveTween(curve: Curves.easeInOutSine)),
+          tween: Tween(begin: 1.0, end: 0.5)
+              .chain(CurveTween(curve: Curves.easeInOutSine)),
           weight: 50.0, // 5s exhale
         ),
       ],
@@ -73,6 +76,9 @@ class _CalmMeScreenState extends ConsumerState<CalmMeScreen> with SingleTickerPr
 
   @override
   void dispose() {
+    if ((_controller.lastElapsedDuration?.inSeconds ?? 0) >= 20) {
+      ref.read(analyticsProvider).markExerciseCompleted('breathing');
+    }
     _controller.dispose();
     super.dispose();
   }
@@ -99,7 +105,10 @@ class _CalmMeScreenState extends ConsumerState<CalmMeScreen> with SingleTickerPr
                 child: Text(
                   _instructionText,
                   key: ValueKey<String>(_instructionText),
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 28),
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleLarge
+                      ?.copyWith(fontSize: 28),
                 ),
               ),
               const SizedBox(height: 80),
@@ -113,11 +122,13 @@ class _CalmMeScreenState extends ConsumerState<CalmMeScreen> with SingleTickerPr
                       height: 250,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: AppTheme.softBlue.withOpacity(0.2),
-                        border: Border.all(color: AppTheme.softBlue.withOpacity(0.5), width: 2),
+                        color: AppTheme.softBlue.withValues(alpha: 0.2),
+                        border: Border.all(
+                            color: AppTheme.softBlue.withValues(alpha: 0.5),
+                            width: 2),
                         boxShadow: [
                           BoxShadow(
-                            color: AppTheme.softBlue.withOpacity(0.2),
+                            color: AppTheme.softBlue.withValues(alpha: 0.2),
                             blurRadius: 30,
                             spreadRadius: 10 * _scaleAnimation.value,
                           )

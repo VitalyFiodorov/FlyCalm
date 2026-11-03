@@ -5,13 +5,14 @@ import '../../core/theme/app_theme.dart';
 import '../../core/providers.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
-  const SplashScreen({Key? key}) : super(key: key);
+  const SplashScreen({super.key});
 
   @override
   ConsumerState<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerProviderStateMixin {
+class _SplashScreenState extends ConsumerState<SplashScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
 
@@ -22,8 +23,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerPr
       vsync: this,
       duration: const Duration(milliseconds: 1000),
     );
-    _fadeAnimation = CurvedAnimation(parent: _fadeController, curve: Curves.easeIn);
-    
+    _fadeAnimation =
+        CurvedAnimation(parent: _fadeController, curve: Curves.easeIn);
+
     _fadeController.forward();
 
     // After a short delay, route based on onboarding status
@@ -47,13 +49,13 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerPr
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.darkNavy,
+      backgroundColor: AppTheme.cloudWhite,
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [AppTheme.darkNavy, AppTheme.deepBlue],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+            colors: [AppTheme.lightBlue, AppTheme.cloudWhite],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
         ),
         child: Center(
@@ -71,9 +73,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerPr
                 Text(
                   "FlyCalm",
                   style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                    fontWeight: FontWeight.w300,
-                    letterSpacing: 2,
-                  ),
+                        fontWeight: FontWeight.w300,
+                        letterSpacing: 2,
+                      ),
                 ),
               ],
             ),

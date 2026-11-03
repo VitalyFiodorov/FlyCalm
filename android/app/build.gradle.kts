@@ -3,8 +3,17 @@ import java.io.FileInputStream
 
 val keystorePropertiesFile = rootProject.file("key.properties")
 val keystoreProperties = Properties()
+var hasValidKeystore = false
+
 if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+    val storeFilePath = keystoreProperties["storeFile"] as? String
+    if (storeFilePath != null) {
+        val storeFileObj = file(storeFilePath)
+        if (storeFileObj.exists()) {
+            hasValidKeystore = true
+        }
+    }
 }
 
 plugins {
@@ -40,7 +49,7 @@ android {
     }
 
     signingConfigs {
-        if (keystorePropertiesFile.exists()) {
+        if (hasValidKeystore) {
             create("release") {
                 keyAlias = keystoreProperties["keyAlias"] as String
                 keyPassword = keystoreProperties["keyPassword"] as String
@@ -52,7 +61,7 @@ android {
 
     buildTypes {
         release {
-            if (keystorePropertiesFile.exists()) {
+            if (hasValidKeystore) {
                 signingConfig = signingConfigs.getByName("release")
             } else {
                 signingConfig = signingConfigs.getByName("debug")

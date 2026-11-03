@@ -15,7 +15,8 @@ class FlightEstimatorState {
 }
 
 class FlightEstimator {
-  static FlightEstimatorState estimate(DateTime departureTime, int durationMinutes, DateTime now) {
+  static FlightEstimatorState estimate(
+      DateTime departureTime, int durationMinutes, DateTime now) {
     final int totalSeconds = durationMinutes * 60;
     final int elapsedSeconds = now.difference(departureTime).inSeconds;
 
@@ -24,11 +25,13 @@ class FlightEstimator {
         elapsedSeconds: 0,
         remainingSeconds: totalSeconds,
         progressPercent: 0.0,
-        currentPhase: FlightPhase.takeoff, // Pre-flight can be combined with takeoff
+        currentPhase:
+            FlightPhase.takeoff, // Pre-flight can be combined with takeoff
       );
     }
 
-    final int clampedElapsedSeconds = elapsedSeconds > totalSeconds ? totalSeconds : elapsedSeconds;
+    final int clampedElapsedSeconds =
+        elapsedSeconds > totalSeconds ? totalSeconds : elapsedSeconds;
     final int remainingSeconds = totalSeconds - clampedElapsedSeconds;
     final double percent = clampedElapsedSeconds / totalSeconds;
 
@@ -60,7 +63,7 @@ class FlightEstimator {
     final h = seconds ~/ 3600;
     final m = (seconds % 3600) ~/ 60;
     final s = seconds % 60;
-    
+
     if (h > 0) {
       return "${h}h ${m}m ${s}s remaining";
     }

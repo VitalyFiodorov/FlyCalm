@@ -9,7 +9,7 @@ import '../../data/models/models.dart';
 import 'dart:math';
 
 class AddFlightScreen extends ConsumerStatefulWidget {
-  const AddFlightScreen({Key? key}) : super(key: key);
+  const AddFlightScreen({super.key});
 
   @override
   ConsumerState<AddFlightScreen> createState() => _AddFlightScreenState();
@@ -31,11 +31,12 @@ class _AddFlightScreenState extends ConsumerState<AddFlightScreen> {
     super.dispose();
   }
 
-  void _submit() {
+  Future<void> _submit() async {
     if (_formKey.currentState!.validate()) {
       final totalMinutes = (_durationHours * 60) + _durationMinutes;
       if (totalMinutes <= 0) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Duration must be greater than zero')));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Duration must be greater than zero')));
         return;
       }
 
@@ -48,8 +49,10 @@ class _AddFlightScreenState extends ConsumerState<AddFlightScreen> {
         createdAt: DateTime.now(),
       );
 
-      ref.read(flightSessionProvider.notifier).setFlight(session);
-      context.go('/flight_mode');
+      await ref.read(flightSessionProvider.notifier).setFlight(session);
+      await ref.read(analyticsProvider).log('flight_started',
+          parameters: {'duration_minutes': totalMinutes});
+      if (mounted) context.go('/flight_mode');
     }
   }
 
@@ -59,10 +62,11 @@ class _AddFlightScreenState extends ConsumerState<AddFlightScreen> {
       initialTime: TimeOfDay.fromDateTime(_departureTime),
       builder: (context, child) {
         return Theme(
-          data: ThemeData.dark().copyWith(
-            colorScheme: ColorScheme.dark(
+          data: ThemeData.light().copyWith(
+            colorScheme: const ColorScheme.light(
               primary: AppTheme.softBlue,
               surface: AppTheme.cardBg,
+              onSurface: AppTheme.primaryText,
             ),
           ),
           child: child!,
@@ -100,51 +104,64 @@ class _AddFlightScreenState extends ConsumerState<AddFlightScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 20),
-                Text("Where are you flying?", style: Theme.of(context).textTheme.titleLarge),
+                Text("Where are you flying?",
+                    style: Theme.of(context).textTheme.titleLarge),
                 const SizedBox(height: 32),
                 TextFormField(
                   controller: _fromController,
-                  style: const TextStyle(color: Colors.white),
+                  style: const TextStyle(color: AppTheme.textLight),
                   decoration: InputDecoration(
                     labelText: "From",
                     labelStyle: const TextStyle(color: AppTheme.textMuted),
                     filled: true,
                     fillColor: AppTheme.cardBg,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide.none),
                   ),
                   validator: (v) => v!.isEmpty ? 'Required' : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _toController,
-                  style: const TextStyle(color: Colors.white),
+                  style: const TextStyle(color: AppTheme.textLight),
                   decoration: InputDecoration(
                     labelText: "To",
                     labelStyle: const TextStyle(color: AppTheme.textMuted),
                     filled: true,
                     fillColor: AppTheme.cardBg,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide.none),
                   ),
                   validator: (v) => v!.isEmpty ? 'Required' : null,
                 ),
                 const SizedBox(height: 32),
-                Text("When do you depart?", style: Theme.of(context).textTheme.titleLarge),
+                Text("When do you depart?",
+                    style: Theme.of(context).textTheme.titleLarge),
                 const SizedBox(height: 16),
                 InkWell(
                   onTap: _selectTime,
                   child: AppCard(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 16),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text("Departure Time", style: Theme.of(context).textTheme.bodyLarge),
-                        Text(DateFormat.Hm().format(_departureTime), style: TextStyle(color: AppTheme.softBlue, fontSize: 18, fontWeight: FontWeight.bold)),
+                        Text("Departure Time",
+                            style: Theme.of(context).textTheme.bodyLarge),
+                        Text(DateFormat.Hm().format(_departureTime),
+                            style: const TextStyle(
+                                color: AppTheme.softBlue,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold)),
                       ],
                     ),
                   ),
                 ),
                 const SizedBox(height: 32),
-                Text("Flight duration", style: Theme.of(context).textTheme.titleLarge),
+                Text("Flight duration",
+                    style: Theme.of(context).textTheme.titleLarge),
                 const SizedBox(height: 16),
                 Row(
                   children: [
@@ -152,13 +169,16 @@ class _AddFlightScreenState extends ConsumerState<AddFlightScreen> {
                       child: TextFormField(
                         initialValue: _durationHours.toString(),
                         keyboardType: TextInputType.number,
-                        style: const TextStyle(color: Colors.white),
+                        style: const TextStyle(color: AppTheme.textLight),
                         decoration: InputDecoration(
                           labelText: "Hours",
-                          labelStyle: const TextStyle(color: AppTheme.textMuted),
+                          labelStyle:
+                              const TextStyle(color: AppTheme.textMuted),
                           filled: true,
                           fillColor: AppTheme.cardBg,
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16),
+                              borderSide: BorderSide.none),
                         ),
                         onChanged: (v) => _durationHours = int.tryParse(v) ?? 0,
                       ),
@@ -168,15 +188,19 @@ class _AddFlightScreenState extends ConsumerState<AddFlightScreen> {
                       child: TextFormField(
                         initialValue: _durationMinutes.toString(),
                         keyboardType: TextInputType.number,
-                        style: const TextStyle(color: Colors.white),
+                        style: const TextStyle(color: AppTheme.textLight),
                         decoration: InputDecoration(
                           labelText: "Minutes",
-                          labelStyle: const TextStyle(color: AppTheme.textMuted),
+                          labelStyle:
+                              const TextStyle(color: AppTheme.textMuted),
                           filled: true,
                           fillColor: AppTheme.cardBg,
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16),
+                              borderSide: BorderSide.none),
                         ),
-                        onChanged: (v) => _durationMinutes = int.tryParse(v) ?? 0,
+                        onChanged: (v) =>
+                            _durationMinutes = int.tryParse(v) ?? 0,
                       ),
                     ),
                   ],
