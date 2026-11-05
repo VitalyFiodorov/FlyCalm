@@ -399,7 +399,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
                 ),
                 const SizedBox(height: 14),
                 Text(
-                  "Guided breathing, reassurance, calming audio, and support during difficult moments.",
+                  "Free calming tools are always available. Premium adds three step-by-step sessions for the full flight, turbulence, and anxious moments.",
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         color: const Color(0xFF94A3B8),
                         fontSize: 15,

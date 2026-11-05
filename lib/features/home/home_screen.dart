@@ -19,13 +19,32 @@ class HomeScreen extends ConsumerWidget {
           padding: const EdgeInsets.fromLTRB(24, 32, 24, 40),
           children: [
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              Text('FlyCalm', style: Theme.of(context).textTheme.titleLarge),
+              Expanded(
+                child: Text(
+                  'FlyCalm',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+              ),
               Row(children: [
                 if (!premium)
                   IconButton(
-                      icon: const Icon(Icons.workspace_premium,
-                          color: AppTheme.softBlue),
-                      onPressed: () => context.push('/premium')),
+                    onPressed: () => context.push('/premium'),
+                    tooltip: 'Explore FlyCalm Premium',
+                    icon: const Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.workspace_premium,
+                            color: AppTheme.softPurple, size: 20),
+                        Text(
+                          'Premium',
+                          textScaler: TextScaler.noScaling,
+                          style: TextStyle(fontSize: 9),
+                        ),
+                      ],
+                    ),
+                  ),
                 IconButton(
                     icon: const Icon(Icons.settings, color: AppTheme.textMuted),
                     onPressed: () => context.push('/settings')),

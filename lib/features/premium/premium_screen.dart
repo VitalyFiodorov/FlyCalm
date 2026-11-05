@@ -45,7 +45,7 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
             Text(
                 entitled
                     ? 'FlyCalm Premium is ready'
-                    : 'Feel more prepared for your next flight.',
+                    : 'Guided support for every stage of your flight.',
                 style: Theme.of(context).textTheme.displayLarge,
                 textAlign: TextAlign.center),
             const SizedBox(height: 20),
@@ -54,13 +54,13 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('✓ Guided support from boarding to arrival'),
+                      Text('✓ Guided Flight Journey — boarding to arrival'),
                       SizedBox(height: 10),
-                      Text('✓ Step-by-step help during turbulence'),
+                      Text('✓ Advanced Turbulence — step-by-step support'),
                       SizedBox(height: 10),
-                      Text('✓ Six guided steps for anxious moments'),
+                      Text('✓ Structured Panic Support — six calming steps'),
                       SizedBox(height: 10),
-                      Text('✓ Lifetime access — one payment'),
+                      Text('✓ All Premium guides available offline'),
                     ])),
             const SizedBox(height: 10),
             const Text(

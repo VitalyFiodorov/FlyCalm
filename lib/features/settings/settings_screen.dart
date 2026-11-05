@@ -32,6 +32,33 @@ class SettingsScreen extends ConsumerWidget {
             children: [
               const SizedBox(height: 60),
               AppCard(
+                child: ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.workspace_premium,
+                      color: AppTheme.softPurple),
+                  title: Text(
+                    settings.premiumEntitled
+                        ? 'FlyCalm Premium — Active'
+                        : 'Explore FlyCalm Premium',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Text(
+                    settings.premiumEntitled
+                        ? 'Lifetime guided support is available offline'
+                        : 'Three guided sessions for every stage of your flight',
+                    style: const TextStyle(color: AppTheme.textMuted),
+                  ),
+                  trailing: settings.premiumEntitled
+                      ? const Icon(Icons.check_circle, color: AppTheme.mint)
+                      : const Icon(Icons.arrow_forward,
+                          color: AppTheme.softBlue),
+                  onTap: settings.premiumEntitled
+                      ? null
+                      : () => context.push('/premium'),
+                ),
+              ),
+              const SizedBox(height: 16),
+              AppCard(
                 child: Column(
                   children: [
                     SwitchListTile(
