@@ -401,7 +401,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
                 Text(
                   "Free calming tools are always available. Premium adds three step-by-step sessions for the full flight, turbulence, and anxious moments.",
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: const Color(0xFF94A3B8),
+                        color: AppTheme.textMuted,
                         fontSize: 15,
                         height: 1.55,
                       ),
@@ -758,7 +758,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
                 Text(
                   "One breath. One moment at a time.",
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: const Color(0xFF94A3B8),
+                        color: AppTheme.textMuted,
                         fontSize: 15.5,
                       ),
                   textAlign: TextAlign.center,
@@ -1133,7 +1133,7 @@ class _FloatingMockUiState extends State<FloatingMockUi>
                   angle: 0.04,
                   child: _buildMockCard(
                     icon: Icons.music_note_rounded,
-                    title: "Calm In-Flight Audio",
+                    title: "Calming Audio",
                     subtitle: "Drift away to ambient clouds",
                     width: 175,
                   ),
@@ -1147,7 +1147,7 @@ class _FloatingMockUiState extends State<FloatingMockUi>
                   angle: -0.04,
                   child: _buildMockCard(
                     icon: Icons.air_rounded,
-                    title: "Breathing Exercises",
+                    title: "Breathing",
                     subtitle: "Regulate your nervous system",
                     width: 175,
                   ),
@@ -1160,7 +1160,7 @@ class _FloatingMockUiState extends State<FloatingMockUi>
                   scale: 1.05,
                   child: _buildMockCard(
                     icon: Icons.waves_rounded,
-                    title: "Turbulence Reassurance",
+                    title: "Turbulence Support",
                     subtitle: "Real-time explanation of sound & movement",
                     width: 220,
                     isMain: true,

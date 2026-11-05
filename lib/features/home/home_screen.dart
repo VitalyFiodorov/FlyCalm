@@ -29,20 +29,28 @@ class HomeScreen extends ConsumerWidget {
               ),
               Row(children: [
                 if (!premium)
-                  IconButton(
+                  TextButton.icon(
                     onPressed: () => context.push('/premium'),
-                    tooltip: 'Explore FlyCalm Premium',
-                    icon: const Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.workspace_premium,
-                            color: AppTheme.softPurple, size: 20),
-                        Text(
-                          'Premium',
-                          textScaler: TextScaler.noScaling,
-                          style: TextStyle(fontSize: 9),
+                    style: TextButton.styleFrom(
+                      backgroundColor:
+                          AppTheme.lavender.withValues(alpha: 0.55),
+                      foregroundColor: AppTheme.primaryText,
+                      minimumSize: const Size(0, 40),
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        side: BorderSide(
+                          color: AppTheme.softPurple.withValues(alpha: 0.7),
                         ),
-                      ],
+                      ),
+                    ),
+                    icon: const Icon(Icons.workspace_premium,
+                        color: AppTheme.softPurple, size: 18),
+                    label: const Text(
+                      'Premium',
+                      textScaler: TextScaler.noScaling,
+                      style:
+                          TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
                     ),
                   ),
                 IconButton(
