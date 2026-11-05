@@ -3,17 +3,31 @@ import java.io.FileInputStream
 
 val keystorePropertiesFile = rootProject.file("key.properties")
 val keystoreProperties = Properties()
-var hasValidKeystore = false
 
 if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
-    val storeFilePath = keystoreProperties["storeFile"] as? String
-    if (storeFilePath != null) {
-        val storeFileObj = file(storeFilePath)
-        if (storeFileObj.exists()) {
-            hasValidKeystore = true
-        }
+}
+
+val requiredSigningProperties =
+    listOf("storeFile", "storePassword", "keyAlias", "keyPassword")
+val hasCompleteSigningProperties =
+    requiredSigningProperties.all { property ->
+        (keystoreProperties[property] as? String)?.isNotBlank() == true
     }
+val storeFilePath = keystoreProperties["storeFile"] as? String
+val hasValidKeystore =
+    hasCompleteSigningProperties &&
+        storeFilePath != null &&
+        file(storeFilePath).exists()
+val releaseBuildRequested =
+    gradle.startParameter.taskNames.any { taskName ->
+        taskName.contains("Release", ignoreCase = true)
+    }
+
+if (releaseBuildRequested && !hasValidKeystore) {
+    throw GradleException(
+        "Release signing credentials or upload keystore are missing.",
+    )
 }
 
 plugins {
@@ -66,8 +80,6 @@ android {
         release {
             if (hasValidKeystore) {
                 signingConfig = signingConfigs.getByName("release")
-            } else {
-                signingConfig = signingConfigs.getByName("debug")
             }
         }
     }
