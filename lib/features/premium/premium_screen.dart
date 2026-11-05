@@ -28,93 +28,140 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
       appBar: AppBar(backgroundColor: Colors.transparent),
       extendBodyBehindAppBar: true,
       body: ScreenContainer(
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(24, 100, 24, 32),
+        child: Column(
           children: [
-            Container(
-              width: 92,
-              height: 92,
-              decoration: const BoxDecoration(
-                color: AppTheme.lavender,
-                shape: BoxShape.circle,
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.fromLTRB(24, 56, 24, 16),
+                children: [
+                  Center(
+                    child: Container(
+                      width: 68,
+                      height: 68,
+                      decoration: const BoxDecoration(
+                        color: AppTheme.lavender,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.flight,
+                          size: 38, color: AppTheme.primaryText),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    entitled
+                        ? 'FlyCalm Premium is ready'
+                        : 'Guided support for every stage of your flight.',
+                    style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                          fontSize: 28,
+                          height: 1.15,
+                        ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 14),
+                  const AppCard(
+                    padding: EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('✓ Guided Flight Journey — boarding to arrival'),
+                        SizedBox(height: 8),
+                        Text('✓ Advanced Turbulence — step-by-step support'),
+                        SizedBox(height: 8),
+                        Text('✓ Structured Panic Support — six calming steps'),
+                        SizedBox(height: 8),
+                        Text('✓ All Premium guides available offline'),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    'Your Premium guides stay available in airplane mode.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: AppTheme.textMuted, fontSize: 14),
+                  ),
+                ],
               ),
-              child: const Icon(Icons.flight,
-                  size: 54, color: AppTheme.primaryText),
             ),
-            const SizedBox(height: 20),
-            Text(
-                entitled
-                    ? 'FlyCalm Premium is ready'
-                    : 'Guided support for every stage of your flight.',
-                style: Theme.of(context).textTheme.displayLarge,
-                textAlign: TextAlign.center),
-            const SizedBox(height: 20),
-            const AppCard(
-                padding: EdgeInsets.all(20),
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('✓ Guided Flight Journey — boarding to arrival'),
-                      SizedBox(height: 10),
-                      Text('✓ Advanced Turbulence — step-by-step support'),
-                      SizedBox(height: 10),
-                      Text('✓ Structured Panic Support — six calming steps'),
-                      SizedBox(height: 10),
-                      Text('✓ All Premium guides available offline'),
-                    ])),
-            const SizedBox(height: 10),
-            const Text(
-              'Your Premium guides stay available in airplane mode.',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: AppTheme.textMuted, fontSize: 14),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.fromLTRB(24, 12, 24, 8),
+              decoration: BoxDecoration(
+                color: AppTheme.cloudWhite.withValues(alpha: 0.94),
+                border: const Border(
+                  top: BorderSide(color: AppTheme.outline),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppTheme.primaryText.withValues(alpha: 0.06),
+                    blurRadius: 16,
+                    offset: const Offset(0, -4),
+                  ),
+                ],
+              ),
+              child: !entitled
+                  ? Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (premium.loading)
+                          const _DisabledPremiumButton(
+                              text: 'Loading Premium...')
+                        else if (product == null || !premium.storeAvailable)
+                          const _DisabledPremiumButton(
+                              text: 'Premium unavailable')
+                        else
+                          PrimaryButton(
+                            onPressed: () async {
+                              await ref
+                                  .read(analyticsProvider)
+                                  .log('premium_cta_clicked');
+                              final started = await ref
+                                  .read(premiumProvider.notifier)
+                                  .buy();
+                              if (!mounted) return;
+                              if (!started) {
+                                ScaffoldMessenger.of(this.context).showSnackBar(
+                                    const SnackBar(
+                                        content: Text(
+                                            'Premium is currently unavailable. Please try again later.')));
+                              }
+                            },
+                            text: 'Unlock Lifetime — ${product.price}',
+                          ),
+                        const SizedBox(height: 6),
+                        const Text(
+                          'One-time purchase. No subscription.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: AppTheme.textMuted,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        if (!premium.loading &&
+                            (product == null || !premium.storeAvailable)) ...[
+                          const SizedBox(height: 6),
+                          const Text(
+                            'Premium is currently unavailable. Please try again later.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                color: AppTheme.textMuted, fontSize: 14),
+                          ),
+                        ],
+                        TextButton(
+                          onPressed: () =>
+                              ref.read(premiumProvider.notifier).restore(),
+                          child: const Text('Restore purchase'),
+                        ),
+                      ],
+                    )
+                  : const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 12),
+                      child: Text(
+                        'Your lifetime access is saved for offline use.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: AppTheme.textMuted),
+                      ),
+                    ),
             ),
-            const SizedBox(height: 20),
-            if (!entitled) ...[
-              if (premium.loading)
-                const _DisabledPremiumButton(text: 'Loading Premium...')
-              else if (product == null || !premium.storeAvailable)
-                const _DisabledPremiumButton(text: 'Premium unavailable')
-              else
-                PrimaryButton(
-                  onPressed: () async {
-                    await ref
-                        .read(analyticsProvider)
-                        .log('premium_cta_clicked');
-                    final started =
-                        await ref.read(premiumProvider.notifier).buy();
-                    if (!mounted) return;
-                    if (!started) {
-                      ScaffoldMessenger.of(this.context).showSnackBar(
-                          const SnackBar(
-                              content: Text(
-                                  'Premium is currently unavailable. Please try again later.')));
-                    }
-                  },
-                  text: 'Unlock Lifetime — ${product.price}',
-                ),
-              const SizedBox(height: 8),
-              const Text('One-time purchase. No subscription.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: AppTheme.textMuted,
-                    fontWeight: FontWeight.w500,
-                  )),
-              if (!premium.loading &&
-                  (product == null || !premium.storeAvailable)) ...[
-                const SizedBox(height: 8),
-                const Text(
-                  'Premium is currently unavailable. Please try again later.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: AppTheme.textMuted, fontSize: 14),
-                ),
-              ],
-              TextButton(
-                  onPressed: () => ref.read(premiumProvider.notifier).restore(),
-                  child: const Text('Restore purchase')),
-            ] else
-              const Text('Your lifetime access is saved for offline use.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: AppTheme.textMuted)),
           ],
         ),
       ),
